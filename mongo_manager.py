@@ -645,7 +645,8 @@ def create_user_chat_document(user_phone):
     chat_document = {
         "user_phone": user_phone,  # You can generate chat_id differently if needed
         "messages": [],  # Empty array to store chat messages
-        "needed_info": needed_info
+        "needed_info": needed_info,
+        "stage" : "recommandation"
     }
     hackathon_chat_history_collection.insert_one(chat_document)
     logger.info(f"insert new chat_document for {user_phone}")
@@ -754,3 +755,39 @@ def update_needed_info(user_phone, updated_info):
         print(f"'needed_info' updated for phone number: {user_phone}")
     else:
         print(f"No document found for phone number: {user_phone}")
+
+def get_stage(user_phone):
+    """
+    Retrieves the 'needed_info' field for a given user_phone from the MongoDB collection.
+    
+    :param user_phone: Phone number of the user
+    :return: The 'needed_info' dictionary if found, or None if no document is found
+    """
+    # Query to find the document by user_phone
+    user_chat_document = hackathon_chat_history_collection.find_one({"user_phone": user_phone}, {"_id": 0, "stage": 1})
+    
+    if user_chat_document and "stage" in user_chat_document:
+        return user_chat_document["stage"]
+    else:
+        logger.info(f"No document found for phone number: {user_phone}")
+        return None
+    
+def update_stage(user_phone, stage):
+    """
+    Updates the 'stage' field for the given user_phone in the MongoDB collection.
+    
+    :param user_phone: Phone number of the user
+    :param updated_info: Dictionary with updated values for 'stage'
+    :return: None
+    """
+    # Update the document that matches the user_phone
+    result = hackathon_chat_history_collection.update_one(
+        {"user_phone": user_phone},
+        {"$set": {"stage": stage}}
+    )
+    
+    if result.matched_count > 0:
+        print(f"'stage' updated for phone number: {user_phone}")
+    else:
+        print(f"No document found for phone number: {user_phone}")
+

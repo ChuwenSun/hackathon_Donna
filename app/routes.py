@@ -14,6 +14,7 @@ import urllib
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 import gpt_api_calls
 import hackathon_reservation_selenium
+import perplexity_api_calls
 import mongo_manager, google_map_manager
 from twilio.rest import Client
 from google.oauth2.credentials import Credentials
@@ -103,8 +104,20 @@ def get_info():
         logger.info("new user should be created")
         mongo_manager.create_user_chat_document(user_phone)
 
+    # stage = mongo_manager.get_stage(user_phone)
+    # print(f"stage: {stage}")
+    # if stage == "recommandation":
+    #     perplexity_prompt = gpt_api_calls.generate_perplxity_prompt_based_on_message(user_message)
+    #     print(f"perplxity_prompt: {perplexity_prompt}")
+    #     perplexity_response = perplexity_api_calls.ask_perplexity(perplexity_prompt)
+    #     # print("\n" + perplexity_response)
+    #     sms_to_send = gpt_api_calls.generate_simplified_restaurant_list_sms(perplexity_response)
+    #     send_message_to_hackathon_user(user_phone, sms_to_send)
+    #     mongo_manager.update_stage(user_phone, "reservation")
+    # if stage == "reservation":
     needed_info = mongo_manager.get_needed_info(user_phone)
     logger.info(f"current needed_info is {needed_info}")
+    
     if any(value == "" for value in needed_info.values()):
         user_input = user_message
         mongo_manager.add_user_message_to_chat_V2(user_phone, user_input)
